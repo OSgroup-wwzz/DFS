@@ -1,16 +1,23 @@
 from flask import Flask, render_template
+from flask_bootstrap import Bootstrap
 
 app = Flask(__name__)
+Bootstrap(app)
 
 
 @app.route('/')
 def index():
-    return '<h1>Hello flask</h1>'
+    return render_template('index.html')
 
 
-@app.route('/usr/<name>')
-def user(name):
-    return 'Hello, {}'.format(name)
+@app.route('/upload')
+def upload():
+    return render_template('upload.html')
+
+
+@app.route('/download')
+def download():
+    return render_template('download.html')
 
 
 @app.errorhandler(404)
