@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block heads %}
+{{ super() }}
+{% endblock %}
+
 {% block title %}Download{% endblock %}
 
 {% block navbar %}
@@ -9,8 +13,8 @@
 {% block subtitle %}File download{% endblock %}
 
 {% block subcontent %}
-<p>Uploaded files:</p>
+<p class=monts>Uploaded files:</p>
 {% for filename in filelist %}
-<li><a href="{{url_for('download_file',filename=filename)}}">{{ filename }}</a></li>
+<li><a class=monts href="{{url_for('download_file',filename=filename)}}">{{ filename }}</a></li>
 {% endfor %}
 {% endblock %}

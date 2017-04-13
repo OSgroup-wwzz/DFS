@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
+{% block heads %}
+{{ super() }}
+{% endblock %}
+
 {% block navbar %}
 {{ super() }}
 {% endblock %}
@@ -13,7 +17,7 @@
             <img src="http://brokensink.com/images/dead_link.png" style=max-width:70%;height:auto;>
         </div>
         <div class=col-md-4>
-            <p style=h3>Oops, dead link</p>
+            <p class=monts>Oops, dead link</p>
         </div>
     </div>
 </div>
