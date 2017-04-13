@@ -1,5 +1,9 @@
 使用flask实现在本地运行的前端
 
 依赖：
-	python-flask
-		flask-bootstrap
+	python
+		python-flask
+			flask-bootstrap
+
+部署：
+	python server.py

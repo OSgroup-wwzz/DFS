@@ -7,6 +7,8 @@ from flask_bootstrap import Bootstrap
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'uploads'
+if not os.path.exists('uploads'):
+    os.makedirs('uploads')
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
