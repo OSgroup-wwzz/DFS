@@ -1,6 +1,21 @@
-<!doctype html>
-<meta charset=UTF-8>
-<title>404</title>
-<img src="{{url_for('static',filename='dead_link.png')}}" style=float:left;></img>
+{% extends "base.html" %}
 
-<h1>Oops, looks like you've found a dead link.</h1>
+{% block navbar %}
+{{ super() }}
+{% endblock %}
+
+{% block subtitle %}ERROR 404{% endblock %}
+
+{% block subcontent %}
+<div class=container>
+    <div class=row>
+        <div class=col-md-6>
+            <img src="http://brokensink.com/images/dead_link.png" style=max-width:70%;height:auto;>
+        </div>
+        <div class=col-md-4>
+            <p style=h3>Oops, dead link</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
