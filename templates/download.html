@@ -8,3 +8,9 @@
 
 {% block subtitle %}File download{% endblock %}
 
+{% block subcontent %}
+<p>Uploaded files:</p>
+{% for filename in filelist %}
+<li><a href="{{url_for('download_file',filename=filename)}}">{{ filename }}</a></li>
+{% endfor %}
+{% endblock %}

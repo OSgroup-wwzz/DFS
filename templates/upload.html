@@ -8,3 +8,12 @@
 
 {% block subtitle %}File Upload{% endblock %}
 
+{% block subcontent %}
+<p>Select upload file:</p>
+<form method=post enctype=multipart/form-data>
+    <input type=file class=form-control-file name=file>
+    <br/>
+    <button type=submit class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}
