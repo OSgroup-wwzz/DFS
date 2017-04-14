@@ -7,13 +7,15 @@
 	p.monts{font-family: 'Montserrat', sans-serif;size: 48px}
 	a.monts{font-family: 'Montserrat', sans-serif;}
 	h1.monts{font-family: 'Montserrat', sans-serif;size: 96px}
-
+	body{ background-color:transparent;
+	    background-image:url({{ url_for('static', filename='background.jpg') }});
+	}
 </style>
 {% endblock %}
 
 {% block navbar %}
 <div class="navbar navbar-inverse" role=navigation>
-    <div class=container>
+    <div class=container> 
         <div class=navbar-header>
             <button type=button class=navbar-toggle
                     data-toggle=collapse data-target=".navbar-collapse">
@@ -35,7 +37,7 @@
 {% endblock %}
 
 {% block content %}
-<div class=container>
+<div class=container class=background>
     <div class=page-header>
         <h1 class=monts>{% block subtitle %}{% endblock %}</h1>
         {% block subcontent %}{% endblock %}
