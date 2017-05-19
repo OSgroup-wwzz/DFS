@@ -1,26 +1,49 @@
-import os
+from os import *
+from Crypto.Hash import SHA256
 
 
-class Handler:
+"""
+
+"""
+
+class Utils:
+
     storage_count = 1
     block_size = 1024
 
+    class File:
+        def __init__(self, path = None, sha256 = None):
+            self.path = path
+            if self.path: 
+                if os.path.isfile(path):
+                    tmp_hash = SHA256.new()
+                    tmp_hash.update(open(path).read())
+                    self.sha256 = tmp_hash.digest()
+                else:
+                    self.sha256 = sha256
 
-    def update():
+    @classmethod
+    def update(cls):
         files = get_file_list()
         for file in files:
             if not exist(file.path):
                 download(file)
                 continue
-            localfile = get_file(file.path)
-            if localfile.sha1 != file.sha1:
+            localfile = Utils.File(path = file.path)
+            if localfile.sha256 != file.sha256:
                 if localfile.last_modified >= file.last_modified:
                     upload(localfile)
                 else:
                     download(file)
     
     
-    def download(file):
+    @classmethod
+    def download(cls, file):
+        files = get_block_list(file)
+        # TO-DO
+
+    @classmethod
+    def upload(cls, file):
         files = get_block_list(file)
         # TO-DO
             
