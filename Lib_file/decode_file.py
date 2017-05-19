@@ -1,11 +1,11 @@
 import os
-import Reed_Solomon.rs
+import rs
 
 def decode_file(filepath,partnum,partsize=1024):
     read_once_size=8
     partnum=partnum+1
     #print read_once_size, partnum, (partnum+4)*read_once_size,partnum*read_once_size##
-    coder=Reed_Solomon.rs.RSCoder((partnum+4)*read_once_size,partnum*read_once_size)
+    coder=rs.RSCoder((partnum+4)*read_once_size,partnum*read_once_size)
     path=os.path.abspath(filepath)
     name,ext=os.path.splitext(path)
     blocknum=0

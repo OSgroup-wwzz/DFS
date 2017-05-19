@@ -1,5 +1,5 @@
 import os
-import Reed_Solomon.rs
+import rs
 
 def encode_file(filepath,partnum,partsize=1024):
     #read_once_size=32
@@ -9,7 +9,7 @@ def encode_file(filepath,partnum,partsize=1024):
     else:
         partnum='''
     read_once_size=8
-    coder=Reed_Solomon.rs.RSCoder((partnum+4)*read_once_size,partnum*read_once_size)
+    coder=rs.RSCoder((partnum+4)*read_once_size,partnum*read_once_size)
     path=os.path.abspath(filepath)
     name,ext=os.path.splitext(path)
     #blocknum=0
