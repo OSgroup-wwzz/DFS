@@ -6,7 +6,7 @@ from Crypto.Hash import SHA256
 
 """
 
-class Utils:
+class utils:
 
     storage_count = 1
     block_size = 1024
@@ -24,27 +24,30 @@ class Utils:
 
     @classmethod
     def update(cls):
-        files = get_file_list()
+        files = utils.get_file_list()
         for file in files:
             if not exist(file.path):
-                download(file)
+                utils.download(file)
                 continue
-            localfile = Utils.File(path = file.path)
+            localfile = utils.File(path = file.path)
             if localfile.sha256 != file.sha256:
                 if localfile.last_modified >= file.last_modified:
-                    upload(localfile)
+                    utils.upload(localfile)
                 else:
-                    download(file)
+                    utils.download(file)
     
     
     @classmethod
     def download(cls, file):
-        files = get_block_list(file)
-        # TO-DO
+        files = utils.get_block_list(file)
+        
+        # TO-DO: communicate with server to get the file
+        
+        
 
     @classmethod
     def upload(cls, file):
-        files = get_block_list(file)
+        files = utils.get_block_list(file)
         # TO-DO
             
 
