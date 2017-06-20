@@ -48,8 +48,3 @@ def decrypt(in_file, out_file, password, key_length=32):
       finished = True
     out_file.write(chunk)
 
-in_filename = input("Input file name:\n")
-out_filename = input("Output file name:\n")
-password = getpass("Password:\n").encode('utf-8')
-with open(in_filename, 'rb') as in_file, open(out_filename, 'wb') as out_file:
-    decrypt(in_file, out_file, password)

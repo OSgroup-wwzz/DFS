@@ -1,5 +1,6 @@
 from os import *
 from Crypto.Hash import SHA256
+import cipher.crypt as crypt
 
 
 """

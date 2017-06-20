@@ -1,6 +1,7 @@
 使用flask实现在本地运行的前端
 
 依赖：
+    rclone
 	python
 		python-flask
 			flask-bootstrap
