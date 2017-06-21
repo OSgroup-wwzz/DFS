@@ -12,19 +12,26 @@ it reads config from a JSON file: config.json
 drawback: no exception catching
 """
 config = json.load(open('config.json'))      
+
+class CopyTask:
+    def __init__(self, filename, frompath, topath):
+        self.filename = filename
+        self.frompath = self.frompath
+        self.topath = self.topath
  
-def copy(filename, frompath, topath):
-    status = subprocess.call(["rclone", "copy", f"{frompath}/{filename}", f"{topath}"])
+
+def copy(copytask):
+    status = subprocess.call(["rclone", "copy", f"{copytask.frompath}/{copytask.filename}", f"{topath}"])
     if status < 0:
         print(f"Copy process terminated abnormally(status {status})")
     else:
-        print(f"Copy from {frompath}/{filename} to {topath}/{filename} completed successfully")
+        print(f"Copy from {copytask.frompath}/{copytask.filename} to {copytask.topath}/{copytask.filename} completed successfully")
 
 
 """
 Concurrently manage copy processes which run in parallel
 """
-def batch_copy(file_list, frompath, topath):
+def batch_copy(copytasklist):
     count = 0
     count_lock = Lock()
     # alive indicates if any process is alive
@@ -42,7 +49,7 @@ def batch_copy(file_list, frompath, topath):
                     proc_list[i].join(0)
                     count_lock.acquire()
                     if count < len(file_list):
-                        proc_list[i] = Process(target=copy, args=(file_list[count], frompath, topath))
+                        proc_list[i] = Process(target=copy, args=(file_list[count]))
                         proc_list[i].start()
                         alive = True
                         count += 1
@@ -50,7 +57,7 @@ def batch_copy(file_list, frompath, topath):
             except Exception:
                     count_lock.acquire()
                     if count < len(file_list):
-                        proc_list[i] = Process(target=copy, args=(file_list[count], frompath, topath))
+                        proc_list[i] = Process(target=copy, args=(file_list[count]))
                         alive = True
                         count += 1
                         proc_list[i].start()
@@ -64,7 +71,7 @@ if __name__=="__main__":
     try:
         filename = input("filename(type EOF to stop):")
         if filename:
-            filelist.append(filename)
+            filelist.append(CopyTask(filename, frompath, topath))
     except EOFError:
         pass
-    batch_copy(filelist, frompath, topath)
+    batch_copy(filelist)
