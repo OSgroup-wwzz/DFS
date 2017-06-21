@@ -1,47 +1,70 @@
 import os
 import subprocess
 import json
-from multiprocessing import Process
+from multiprocessing import Process,Lock
 
 """
 Upload and download, API handling services provided by rclone.org
-it reads config from a JSON file: config/config.json
+
+VERY IMPORTANT:
+it reads config from a JSON file: config.json
+
 drawback: no exception catching
 """
+config = json.load(open('config.json'))      
  
-def upload(filename, localpath, cloudpath):
-    status = subprocess.call(["rclone", "copy", f"{localpath}/{filename}", f"{cloudpath}/{filename}"])
+def copy(filename, frompath, topath):
+    status = subprocess.call(["rclone", "copy", f"{frompath}/{filename}", f"{topath}"])
     if status < 0:
-        print(f"Upload process terminated abnormally(status {status})")
-
-
-def download(filename, cloudpath, localpath):
-    status = subprocess.call(["rclone", "copy", f"{cloudpath}/{filename}", f"{localpath}/{filename}"])
-    if status < 0:
-        print(f"Download process terminated abnormally(status {status})")
+        print(f"Copy process terminated abnormally(status {status})")
+    else:
+        print(f"Copy from {frompath}/{filename} to {topath}/{filename} completed successfully")
 
 
 """
-Concurrently manage upload processes which run in parallel
+Concurrently manage copy processes which run in parallel
 """
-def batch_upload(file_list, localpath, cloudpath):
+def batch_copy(file_list, frompath, topath):
     count = 0
-    proc_list = [None] * MAX_PROCESSES
-    while count < len(file_list):
-        for i in range(MAX_PROCESSES):
+    count_lock = Lock()
+    # alive indicates if any process is alive
+    alive = False
+    proc_list = [None] * config["MAX_PROCESSES"]
+    while count < len(file_list) or alive:
+        alive = False
+        for i in range(config["MAX_PROCESSES"]):
             try:
                 # Maybe here will be a TypeError or something
-                if not proc_list[i] or not proc_list[i].is_alive():
+                if proc_list[i] and proc_list[i].is_alive():
+                    alive = True
                     continue
                 else:
                     proc_list[i].join(0)
-                    count += 1
-                    if count < len(file_list)
-                        proc_list[i] = Process(target=upload, args=(file_list[i], localpath, cloudpath))
+                    count_lock.acquire()
+                    if count < len(file_list):
+                        proc_list[i] = Process(target=copy, args=(file_list[count], frompath, topath))
                         proc_list[i].start()
+                        alive = True
+                        count += 1
+                    count_lock.release()
             except Exception:
-                    if count < len(file_list)
-                        proc_list[i] = Process(target=upload, args=(file_list[i], localpath, cloudpath))
+                    count_lock.acquire()
+                    if count < len(file_list):
+                        proc_list[i] = Process(target=copy, args=(file_list[count], frompath, topath))
+                        alive = True
+                        count += 1
                         proc_list[i].start()
-    print("Upload complete")
+                    count_lock.release()
+    print("Batch copy complete")
 
+if __name__=="__main__":
+    frompath = input("from:")
+    topath = input("to:")
+    filelist = []
+    try:
+        filename = input("filename(type EOF to stop):")
+        if filename:
+            filelist.append(filename)
+    except EOFError:
+        pass
+    batch_copy(filelist, frompath, topath)
