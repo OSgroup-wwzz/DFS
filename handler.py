@@ -1,4 +1,5 @@
 import os
+from os import path
 from Crypto.Hash import SHA256
 import cipher.crypt as crypt
 import sync
@@ -25,6 +26,9 @@ class Block:
         self.name = name
         self.frompath = frompath
 
+def gen_file_list():
+    files = [i for i in os.scandir("files/") if path.isfile(i)]
+    return files
 
 def read_file_list():
     get_file_list()
