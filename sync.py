@@ -21,8 +21,7 @@ filename(type EOF to stop):myfile
 **there** is another drive 
 
 """
-
-config = json.load(open('config.json'))      
+config = json.load(open('config/sync.json'))      
 
 class CopyTask:
     def __init__(self, filename, frompath, topath):
@@ -35,7 +34,7 @@ return a nonzero value for success
 needs revision
 """
 def copy(copytask):
-    status = subprocess.call(["rclone", "copy", f"{copytask.frompath}/{copytask.filename}", f"{topath}"])
+    status = subprocess.call(["rclone", "copy", f"{copytask.frompath}/{copytask.filename}", f"{copytask.topath}"])
     if status < 0:
         print(f"Copy process terminated abnormally(status {status})")
         return 0
@@ -49,7 +48,7 @@ def copy(copytask):
 Concurrently manage copy processes which run in parallel
 Remove it?
 """
-def batch_copy(file_list, frompath, topath):
+def batch_copy(file_list):
     count = 0
     count_lock = Lock()
     # alive indicates if any process is alive
@@ -67,7 +66,7 @@ def batch_copy(file_list, frompath, topath):
                     proc_list[i].join(0)
                     count_lock.acquire()
                     if count < len(file_list):
-                        proc_list[i] = Process(target=copy, args=(file_list[count], frompath, topath))
+                        proc_list[i] = Process(target=copy, args=(file_list[count]))
                         proc_list[i].start()
                         alive = True
                         count += 1
@@ -75,7 +74,7 @@ def batch_copy(file_list, frompath, topath):
             except Exception:
                     count_lock.acquire()
                     if count < len(file_list):
-                        proc_list[i] = Process(target=copy, args=(file_list[count], frompath, topath))
+                        proc_list[i] = Process(target=copy, args=(file_list[count]))
                         alive = True
                         count += 1
                         proc_list[i].start()
@@ -89,7 +88,7 @@ if __name__=="__main__":
     try:
         filename = input("filename(type EOF to stop):")
         if filename:
-            filelist.append(filename)
+            filelist.append(CopyTask(filename, frompath, topath))
     except EOFError:
         pass
-    batch_copy(filelist, frompath, topath)
+    batch_copy(filelist)
