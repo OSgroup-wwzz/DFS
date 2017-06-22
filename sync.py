@@ -10,19 +10,44 @@ VERY IMPORTANT:
 it reads config from a JSON file: config.json
 
 drawback: no exception catching
+
+Example:
+
+from:**here**:/home/exampleuser/examplerfolder  
+to:**there**:
+filename(type EOF to stop):myfile
+
+**here** is the name of the local drive you created in the rclone
+**there** is another drive 
+
 """
-config = json.load(open('/home/suncio/DFS/sync/config.json'))      
- 
-def copy(filename, frompath, topath):
-    status = subprocess.call(["rclone", "copy", "{0}/{1}".format(frompath,filename), "{0}".format(topath)])
+
+config = json.load(open('config.json'))      
+
+class CopyTask:
+    def __init__(self, filename, frompath, topath):
+        self.filename = filename
+        self.frompath = self.frompath
+        self.topath = self.topath
+
+"""
+return a nonzero value for success
+needs revision
+"""
+def copy(copytask):
+    status = subprocess.call(["rclone", "copy", f"{copytask.frompath}/{copytask.filename}", f"{topath}"])
     if status < 0:
-        print("Copy process terminated abnormally(status {0})".format(status))
+        print(f"Copy process terminated abnormally(status {status})")
+        return 0
     else:
-        print("Copy from {0}/{1} to {2}/{3} completed successfully".format(frompath,filename,topath,filename))
+        print(f"Copy from {copytask.frompath}/{copytask.filename} to {copytask.topath}/{copytask.filename} completed successfully")
+        return 1
+
 
 
 """
 Concurrently manage copy processes which run in parallel
+Remove it?
 """
 def batch_copy(file_list, frompath, topath):
     count = 0

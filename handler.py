@@ -23,7 +23,6 @@ class File:
             else:
                 self.sha256 = sha256
 
-
 class Block:
     def __init__(self, name, frompath):
         self.name = name
@@ -151,6 +150,7 @@ def merge(filename, filepath, partsize=block_size):
             partstream.close()
     except FileNotFoundError:
         fileobj.close()
+        
 
 """
 undone: get_block_list
@@ -212,3 +212,4 @@ def block_list_map(file):
         blockmap.append([int(x) for x in line.split(' ')])#assume that block list addr is a number
     bl.close()
     return blockmap
+
