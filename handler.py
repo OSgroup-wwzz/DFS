@@ -176,3 +176,19 @@ def get_file_list(cls):
         fullname=os.path.join(dir,name)
         self.append(fullname)
 
+def block_list_addr(filename):
+    #get the block list addr of given file 
+    filelist=open('./filelist','r')
+    i=0;
+    while True:
+        line1=filelist.readline().strip('\n')
+        line2=filelist.readline().strip('\n')
+        if len(line2)==0:
+            print('No such file!\n')
+            break;
+        if filename==line1:
+            addr=int(line2);#assume that block list addr is a number
+            break;
+        i=i+1
+    filelist.close();
+    return addr    
