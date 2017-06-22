@@ -21,7 +21,7 @@ filename(type EOF to stop):myfile
 **there** is another drive 
 
 """
-config = json.load(open('config.json'))      
+config = json.load(open('config/sync.json'))      
 
 class CopyTask:
     def __init__(self, filename, frompath, topath):
@@ -47,7 +47,7 @@ def copy(copytask):
 Concurrently manage copy processes which run in parallel
 Remove it?
 """
-def batch_copy(copytasklist):
+def batch_copy(file_list):
     count = 0
     count_lock = Lock()
     # alive indicates if any process is alive

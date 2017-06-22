@@ -2,15 +2,12 @@ from os import *
 from Crypto.Hash import SHA256
 import cipher.crypt as crypt
 import sync
-
-"""
-undone: get_block_list
-        get_file_list
-"""
+import json
 
 
-storage_count = 1
-block_size = 1024
+loc = json.load("config/loc.json")
+block_size = 8192
+
 
 class File:
     def __init__(self, path = None, sha256 = None, last_modified = 0):
@@ -31,14 +28,18 @@ class Block:
         self.frompath = frompath
 
 
-def read_file_list(files):
+def read_file_list():
+    get_file_list()
+    files = []
     list_file = open(f"files/filelist.blk", "r")
     lines = list_file.readlines
     for line in lines:
         files.append(File(filename=line))
+    return files
 
 
-def read_block_list(file, blocks):
+def read_block_list(file):
+    get_block_list()
     list_file = open(f"files/{file.filename}.blk", 'r')
     lines = list_file.readlines
     try:
@@ -49,7 +50,23 @@ def read_block_list(file, blocks):
             blocks.append(i.split(" "))      
     except IndexError:
         print(f"Error processing file {filename}")
-    
+    return blocks
+
+
+def get_file_list():
+    print("Fetching file list")
+    for server in loc["servers"]:
+        if sync.copy("filelist.blk", server, loc["here"]):
+            print("Successfully downloaded file list")
+     #  if the file is ok
+            return
+    print("Error downloading file list")
+
+
+def get_block_list(filelist, file):
+    for server in loc["servers"]:
+        sync.copy(f"{file.filename}", server, loc["here"])
+
 
 def update():
     files = get_file_list()
@@ -67,7 +84,7 @@ def update():
 
 def download_block(block):
     for i in block.frompath:
-        if sync.copy(sync.CopyTask(block.name, block.frompath, here)):
+        if sync.copy(sync.CopyTask(block.name, block.frompath, loc["here"])):
            break
         print(f"Downloading from {block.frompath} failed...")
     print(f"Error cannot download {block.name}")
@@ -75,20 +92,19 @@ def download_block(block):
 
 def upload_block(block):
     for i in block.frompath:
-        if not sync.copy(sync.CopyTask(block.name, here, frompath)):
+        if not sync.copy(sync.CopyTask(block.name, loc["here"], frompath)):
             print(f"Uploading to {block.frompath} failed...\
                     Remove the entry from the block list afterwards")
 
 
 def download(file):
-    blocks = get_block_list(file)
+    blocks = read_block_list(file)
     with Pool(sync.MAX_PROCESSES) as p:
         p.map(download_block, blocks)
         
 
-
 def upload(file):
-    blocks = get_block_list(file)
+    blocks = read_block_list(file)
     with Pool(sync.MAX_PROCESSES) as p:
         p.map(upload_block, blocks)    
 
