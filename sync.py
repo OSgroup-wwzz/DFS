@@ -10,6 +10,16 @@ VERY IMPORTANT:
 it reads config from a JSON file: config.json
 
 drawback: no exception catching
+
+Example:
+
+from:**here**:/home/exampleuser/examplerfolder  
+to:**there**:
+filename(type EOF to stop):myfile
+
+**here** is the name of the local drive you created in the rclone
+**there** is another drive 
+
 """
 config = json.load(open('config.json'))      
 
