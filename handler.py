@@ -192,3 +192,23 @@ def block_list_addr(filename):
         i=i+1
     filelist.close();
     return addr    
+
+
+def block_list_map(file):
+#give the file name,  find the addr of blocklist of the file, and give a list of block map
+#e.g. [[1,2,3],[2,3],[1,2]]
+    addr=block_list_addr(file)
+    #assume that bl of a file is file+'_bl'
+    #Download is waiting for implemented...
+    Download(file+'_bl',addr)
+    bl=open(file+'_bl','r')
+    bl.readline();
+    bl.readline();
+    line=bl.readline();
+    blocknum=int([x for x in line.split(' ')][1])
+    blockmap=[]
+    for i in range(blocknum):
+        line=bl.readline().strip('\n')
+        blockmap.append([int(x) for x in line.split(' ')])#assume that block list addr is a number
+    bl.close()
+    return blockmap
