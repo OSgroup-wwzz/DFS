@@ -1,6 +1,6 @@
-from handler import Handler
+from handler import utils
 
 filename = input()
-Handler.split(filename)
-Handler.merge(filename+".bk", Handler.filename_gen(filename))
-
+utils.split(filename)
+#Handler.merge(filename+".bk", Handler.filename_gen(filename))
+utils.upload(filename)

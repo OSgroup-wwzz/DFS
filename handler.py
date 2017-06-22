@@ -1,7 +1,7 @@
-from os import *
+import os
 from Crypto.Hash import SHA256
 import cipher.crypt as crypt
-
+from sync.sync import copy,batch_copy
 
 """
 
@@ -37,20 +37,41 @@ class utils:
                 else:
                     utils.download(file)
     
-    
+    @classmethod
+    def get_block_list(cls, file):
+        n = 0
+        while True:
+            blockname = file + "_{}".format(n)
+            if not os.path.exists(blockname):
+                break
+            else:
+                self.append(blockname)
+                n = n + 1
+        
+
+    @classmethod
+    def get_file_list(cls):
+        dir = './uploads'
+        files = os.listdir(dir)
+        for name in files:
+            fullname=os.path.join(dir,name)
+            self.append(fullname)
+
     @classmethod
     def download(cls, file):
         files = utils.get_block_list(file)
-        
         # TO-DO: communicate with server to get the file
         
         
 
     @classmethod
     def upload(cls, file):
+        #调用前先调用split(cls, filepath)
         files = utils.get_block_list(file)
-        # TO-DO
-            
+        topath = './test_drive'  #test
+        batch_copy(files, './uploads', topath)
+        
+
 
     @classmethod
     def filename_gen(cls, filename):
@@ -65,8 +86,8 @@ class utils:
     generate filename_0, filename_1 ...
     """
     @classmethod
-    def split(cls, filepath,partsize=block_size):
-        filedir,name=os.path.split(filepath)
+    def split(cls, filepath, partsize=block_size):
+        filedir,name = os.path.split(filepath)
         stream=open(filepath,'rb');
         for partname in cls.filename_gen(name):
             part_stream=open(partname,'wb')
