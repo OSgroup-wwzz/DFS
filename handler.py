@@ -170,11 +170,13 @@ def get_block_list(cls, file):
 
     
 def get_file_list(cls):
-    dir = './uploads'
-    files = os.listdir(dir)
-    for name in files:
-        fullname=os.path.join(dir,name)
-        self.append(fullname)
+    dir = './files'
+    myfile = open('./files/filelist.blk','w')
+    list = os.listdir(dir)
+    for line in list:
+        filepath = os.path.join(dir,line)
+        myfile.write(''+line +'\n')
+    myfile.close()
 
 def block_list_addr(filename):
     #get the block list addr of given file 
