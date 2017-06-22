@@ -28,18 +28,24 @@ class CopyTask:
         self.filename = filename
         self.frompath = self.frompath
         self.topath = self.topath
- 
 
+"""
+return a nonzero value for success
+needs revision
+"""
 def copy(copytask):
     status = subprocess.call(["rclone", "copy", f"{copytask.frompath}/{copytask.filename}", f"{topath}"])
     if status < 0:
         print(f"Copy process terminated abnormally(status {status})")
+        return 0
     else:
         print(f"Copy from {copytask.frompath}/{copytask.filename} to {copytask.topath}/{copytask.filename} completed successfully")
+        return 1
 
 
 """
 Concurrently manage copy processes which run in parallel
+Remove it?
 """
 def batch_copy(copytasklist):
     count = 0

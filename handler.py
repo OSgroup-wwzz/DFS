@@ -31,7 +31,14 @@ class Block:
         self.frompath = frompath
 
 
-def read_block_list(file):
+def read_file_list(files):
+    list_file = open(f"files/filelist.blk", "r")
+    lines = list_file.readlines
+    for line in lines:
+        files.append(File(filename=line))
+
+
+def read_block_list(file, blocks):
     list_file = open(f"files/{file.filename}.blk", 'r')
     lines = list_file.readlines
     try:
@@ -60,10 +67,17 @@ def update():
 
 def download_block(block):
     for i in block.frompath:
-        if sync.copy(block.name, block.frompath, here):
+        if sync.copy(sync.CopyTask(block.name, block.frompath, here)):
            break
         print(f"Downloading from {block.frompath} failed...")
     print(f"Error cannot download {block.name}")
+
+
+def upload_block(block):
+    for i in block.frompath:
+        if not sync.copy(sync.CopyTask(block.name, here, frompath)):
+            print(f"Uploading to {block.frompath} failed...\
+                    Remove the entry from the block list afterwards")
 
 
 def download(file):
@@ -71,14 +85,6 @@ def download(file):
     with Pool(sync.MAX_PROCESSES) as p:
         p.map(download_block, blocks)
         
-
-def download_block(block):
-    for i in block.frompath:
-        if sync.copy(block.name, block.frompath, here):
-           break
-        print(f"Uploading to {block.frompath} failed...")
-        print(f"Please")
-    print(f"Error cannot download {block.name}")
 
 
 def upload(file):
