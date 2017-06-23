@@ -6,9 +6,10 @@ import sync
 import json
 import math
 import secrets
+import gmtime
 
 
-loc = json.load("config/loc.json")
+loc = json.load(open("config/loc.json", "r"))
 block_size = 8192
 copy_count = 1
 
@@ -37,11 +38,15 @@ def get_sha256(path):
  
 
 def gen_file_list():
-    files = [i for i in os.scandir("files/") if path.isfile(i)]
-    return files
+    print("Generating file list...")
+    list_file = open("files/filelist.blk", "w")
+    lines = [str(int(time.time()))]
+    lines += [i.name for i in os.scandir("files/") if path.isfile(i) and i.name.split(".")[-1] != "blk"]
+    list_file.writelines(lines)
+    print("Generated files/filelist.blk")
 
 def gen_block_list(file):
-    print(f"generating block list for {file.filename}")
+    print(f"Generating block list for {file.filename}")
     timestamp = int(os.stat(join("files", file.filename)).st_ctime)
     if file.sha256:
         sha256 = file.sha256
@@ -65,11 +70,16 @@ def gen_block_list(file):
         
 
 def read_file_list():
-    get_file_list()
+    try:
+        get_file_list()
+    except Exception:
+        pass
+    if 
     files = []
     list_file = open(f"files/filelist.blk", "r")
-    lines = list_file.readlines
-    for line in lines:
+    lines = list_file.readlines()
+    # the first line is time
+    for line in lines[1:]:
         files.append(File(filename=line))
     return files
 
@@ -90,10 +100,17 @@ def read_block_list(file):
 
 
 def get_file_list():
-    print("Fetching file list")
+    print("Fetching file list...")
     for server in loc["servers"]:
-        if sync.copy("filelist.blk", server, loc["here"]):
-            print("Successfully downloaded file list")
+        if sync.copy("filelist.blk.new", server, loc["here"]):
+            timelocal = int(open("files/filelist.blk", "r").readline()) 
+            timeext = int(open("files/filelist.blk.new", "r").readline())
+            if timelocal < timeext:
+                os.replace("files/filelist.blk.new", "files/filelist.blk")
+                print("Successfully updated file list")
+            else:
+                os.remove("files/filelist.blk.new")
+                print("The file list is up to date")
      #  if the file is ok
             return
     print("Error downloading file list")
@@ -206,12 +223,8 @@ def merge(filename, filepath, partsize=block_size):
         fileobj.close()
         
 
-"""
-undone: get_block_list
-        get_file_list
-"""
 
-def get_block_list(cls, file):
+def get_block_list(file):
     n = 0
     while True:
         blockname = file + "_{}".format(n)
@@ -222,17 +235,7 @@ def get_block_list(cls, file):
             n = n + 1
         
 
-    
-def get_file_list(cls):
-    dir = './files'
-    myfile = open('./files/filelist.blk','w')
-    list = os.listdir(dir)
-    for line in list:
-        filepath = os.path.join(dir,line)
-        myfile.write(''+line +'\n')
-    myfile.close()
-
-def block_list_addr(filename):
+    def block_list_addr(filename):
     #get the block list addr of given file 
     filelist=open('./filelist','r')
     i=0;
