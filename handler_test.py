@@ -9,3 +9,6 @@ for f in list1:
 
 for f in list1:
     print(read_block_list(f))
+
+split(f.filename, handler.loc["here"])
+

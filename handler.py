@@ -1,6 +1,7 @@
 import os
 from os import path
 from Crypto.Hash import SHA256
+from multiprocessing import Pool
 import cipher.crypt as crypt
 import sync
 import json
@@ -80,11 +81,11 @@ def read_file_list():
         pass
     # if 
     files = []
-    list_file = open(f"files/filelist.blk", "r")
+    list_file = open("files/filelist.blk", "r")
     lines = list_file.readlines()
     # the first line is timestamp
     for line in lines[1:]:
-        files.append(File(line))
+        files.append(File(line.strip()))
     return files
 
 
@@ -97,8 +98,8 @@ def read_block_list(file):
         file.sha256 = lines[1]
     # to do process paths with spaces
         blocks = []
-        for i in lines[2:]:
-            blocks.append(i.split(" "))      
+        for i, j  in zip(lines[2:], filename_gen(file.filename)):
+            blocks.append(Block(j, i.strip().split(" ")))      
     except IndexError:
         print(f"Error processing file {filename}")
     return blocks
@@ -153,27 +154,29 @@ def download_block(block):
 
 def upload_block(block):
     for i in block.frompath:
-        if not sync.copy(sync.CopyTask(block.name, loc["here"], frompath)):
-            print(f"Uploading to {block.frompath} failed...\
+        if not sync.copy(sync.CopyTask(block.name, loc["here"], i)):
+            print(f"Uploading to {i} failed...\
                     Remove the entry from the block list afterwards")
+        else:
+            print(f"Successfully uploaded to {i}/{block.name}")
 
 
 def download(file):
     blocks = read_block_list(file)
-    with Pool(sync.MAX_PROCESSES) as p:
+    with Pool(sync.config["MAX_PROCESSES"]) as p:
         p.map(download_block, blocks)
         
 
 def upload(file):
     blocks = read_block_list(file)
-    with Pool(sync.MAX_PROCESSES) as p:
+    with Pool(sync.config["MAX_PROCESSES"]) as p:
         p.map(upload_block, blocks)    
 
 
-def filename_gen(filename):
+def filename_gen(filename, pdir = ""):
     n = 0
     while True:
-        yield filename + "_{}".format(n)
+        yield path.join(pdir, filename + "_{}".format(n))
         n = n + 1
 
 
@@ -184,9 +187,9 @@ generate filename_0, filename_1 ...
 def split(filepath,partsize=block_size):
     filedir,name=os.path.split(filepath)
     stream=open(filepath,'rb');
-    for partname in filename_gen(name):
+    for partname in filename_gen(name, pdir=loc["here"]):
         part_stream=open(partname,'wb')
-        read_size=1024
+        read_size=block_size
         read_part_total=0
         read_once_length=0
         #write for part of the block
@@ -211,7 +214,7 @@ gernerate {filename} from {clustername_0, clustername_1, ...}
 """
 def merge(filename, filepath, partsize=block_size):
     fileobj = open(filename,'wb')
-    once_read_size = 1024
+    once_read_size = block_size
     try:
         for filepart in filepath:
             partstream=open(filepart,'rb')
