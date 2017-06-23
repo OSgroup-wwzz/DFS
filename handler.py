@@ -6,7 +6,7 @@ import sync
 import json
 import math
 import secrets
-import gmtime
+import time
 
 
 loc = json.load(open("config/loc.json", "r"))
@@ -14,11 +14,11 @@ block_size = 8192
 copy_count = 1
 
 class File:
-    def __init__(self, path = None, sha256 = None, last_modified = 0):
-        self.path = path
-        self.last_modified = self.last_modified
-        if self.path: 
-            if os.path.isfile(path):
+    def __init__(self, filename = None, sha256 = None, last_modified = 0):
+        self.filename = filename
+        self.last_modified = last_modified
+        if self.filename: 
+            if os.path.isfile(filename):
                 self.sha256 = get_sha256(path)
             else:
                 self.sha256 = sha256
@@ -31,23 +31,27 @@ class Block:
 def get_sha256(path):
     if os.path.isfile(path):
          tmp_hash = SHA256.new()
-         tmp_hash.update(open(path).read())
+         tmp_hash.update(open(path, "rb").read())
          return tmp_hash.digest()
     else:
         return None
- 
+
+"""
+To do: update(upload) file list
+""" 
 
 def gen_file_list():
     print("Generating file list...")
     list_file = open("files/filelist.blk", "w")
     lines = [str(int(time.time()))]
     lines += [i.name for i in os.scandir("files/") if path.isfile(i) and i.name.split(".")[-1] != "blk"]
-    list_file.writelines(lines)
+    list_file.write("\n".join(lines))
     print("Generated files/filelist.blk")
+
 
 def gen_block_list(file):
     print(f"Generating block list for {file.filename}")
-    timestamp = int(os.stat(join("files", file.filename)).st_ctime)
+    timestamp = int(os.stat(path.join("files", file.filename)).st_ctime)
     if file.sha256:
         sha256 = file.sha256
     else:
@@ -56,15 +60,15 @@ def gen_block_list(file):
     lines.append(str(timestamp))
     lines.append(str(sha256))
     block_file = open(f"files/{file.filename}.blk", "w")
-    block_count = math.ceil(float(os.getsize(join("files", file.filename))) / block_size)
+    block_count = math.ceil(float(path.getsize(path.join("files", file.filename))) / block_size)
     for i in range(block_count):
         frompath = []
         for j in range(copy_count):
             randserver = secrets.choice(loc["servers"])
             if not randserver in frompath:
                 frompath.append(randserver)
-        lines.append(frompath.join(" "))
-    block_file.writelines(lines)
+        lines.append(" ".join(frompath))
+    block_file.write("\n".join(lines))
     print(f"block list successfully generated")
         
         
@@ -74,24 +78,25 @@ def read_file_list():
         get_file_list()
     except Exception:
         pass
-    if 
+    # if 
     files = []
     list_file = open(f"files/filelist.blk", "r")
     lines = list_file.readlines()
-    # the first line is time
+    # the first line is timestamp
     for line in lines[1:]:
-        files.append(File(filename=line))
+        files.append(File(line))
     return files
 
 
 def read_block_list(file):
-    get_block_list()
+    get_block_list(file)
     list_file = open(f"files/{file.filename}.blk", 'r')
-    lines = list_file.readlines
+    lines = list_file.readlines()
     try:
         file.last_modified = int(lines[0])
         file.sha256 = lines[1]
     # to do process paths with spaces
+        blocks = []
         for i in lines[2:]:
             blocks.append(i.split(" "))      
     except IndexError:
@@ -111,8 +116,7 @@ def get_file_list():
             else:
                 os.replace("files/filelist.blk.old", "files/filelist.blk")
                 print("The file list is up to date")
-     #  if the file is ok
-            return
+    #  if the file is ok
     print("Error downloading file list")
 
 """
@@ -120,18 +124,18 @@ TO-DO:
     check time
 """
     
-def get_block_list(filelist, file):
+def get_block_list(file):
     for server in loc["servers"]:
-        if sync.copy(f"{file.filename}.blk", server, loc["here"]):
+        if sync.copy(sync.CopyTask(f"{file.filename}.blk", server, loc["here"])):
             pass
 
 def update():
     files = get_file_list()
     for file in files:
-        if not exist(file.path):
+        if not exist(file.filename):
             download(file)
             continue
-        localfile = File(path = file.path)
+        localfile = File(filename = file.filename)
         if localfile.sha256 != file.sha256:
             if localfile.last_modified >= file.last_modified:
                 upload(localfile)

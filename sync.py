@@ -26,8 +26,8 @@ config = json.load(open('config/sync.json'))
 class CopyTask:
     def __init__(self, filename, frompath, topath):
         self.filename = filename
-        self.frompath = self.frompath
-        self.topath = self.topath
+        self.frompath = frompath
+        self.topath = topath
 
 """
 return a nonzero value for success

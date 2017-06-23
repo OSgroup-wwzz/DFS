@@ -11,7 +11,7 @@ def init():
     server = []
     try:
         while True:
-            server.append(input("Names of your cloud drives(EOF to stop):") + ":")
+            server.append(input("{drive name}:{root dir}(EOF to stop):"))
     except EOFError:
         pass
     locs["servers"] = server
