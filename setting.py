@@ -15,7 +15,7 @@ def init():
     except EOFError:
         pass
     locs["servers"] = server
-    file = open("config/locs.json", "w")
+    file = open("config/loc.json", "w")
     file.write(json.dumps(locs))
 
 if __name__ == "__main__":

@@ -4,10 +4,13 @@ from Crypto.Hash import SHA256
 import cipher.crypt as crypt
 import sync
 import json
+import math
+import secrets
 
 
 loc = json.load("config/loc.json")
 block_size = 8192
+copy_count = 1
 
 class File:
     def __init__(self, path = None, sha256 = None, last_modified = 0):
@@ -15,9 +18,7 @@ class File:
         self.last_modified = self.last_modified
         if self.path: 
             if os.path.isfile(path):
-                tmp_hash = SHA256.new()
-                tmp_hash.update(open(path).read())
-                self.sha256 = tmp_hash.digest()
+                self.sha256 = get_sha256(path)
             else:
                 self.sha256 = sha256
 
@@ -26,9 +27,42 @@ class Block:
         self.name = name
         self.frompath = frompath
 
+def get_sha256(path):
+    if os.path.isfile(path):
+         tmp_hash = SHA256.new()
+         tmp_hash.update(open(path).read())
+         return tmp_hash.digest()
+    else:
+        return None
+ 
+
 def gen_file_list():
     files = [i for i in os.scandir("files/") if path.isfile(i)]
     return files
+
+def gen_block_list(file):
+    print(f"generating block list for {file.filename}")
+    timestamp = int(os.stat(join("files", file.filename)).st_ctime)
+    if file.sha256:
+        sha256 = file.sha256
+    else:
+        sha256 = get_sha256(os.path.join("files", file.filename))
+    lines = []
+    lines.append(str(timestamp))
+    lines.append(str(sha256))
+    block_file = open(f"files/{file.filename}.blk", "w")
+    block_count = math.ceil(float(os.getsize(join("files", file.filename))) / block_size)
+    for i in range(block_count):
+        frompath = []
+        for j in range(copy_count):
+            randserver = secrets.choice(loc["servers"])
+            if not randserver in frompath:
+                frompath.append(randserver)
+        lines.append(frompath.join(" "))
+    block_file.writelines(lines)
+    print(f"block list successfully generated")
+        
+        
 
 def read_file_list():
     get_file_list()
