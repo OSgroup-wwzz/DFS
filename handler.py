@@ -210,7 +210,7 @@ def merge(filename, filepath, partsize=block_size):
 undone: get_block_list
         get_file_list
 """
-
+"""
 def get_block_list(cls, file):
     n = 0
     while True:
@@ -231,6 +231,7 @@ def get_file_list(cls):
         filepath = os.path.join(dir,line)
         myfile.write(''+line +'\n')
     myfile.close()
+"""
 
 def block_list_addr(filename):
     #get the block list addr of given file 
