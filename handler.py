@@ -102,24 +102,28 @@ def read_block_list(file):
 def get_file_list():
     print("Fetching file list...")
     for server in loc["servers"]:
-        if sync.copy("filelist.blk.new", server, loc["here"]):
-            timelocal = int(open("files/filelist.blk", "r").readline()) 
-            timeext = int(open("files/filelist.blk.new", "r").readline())
+        if sync.copy(sync.CopyTask("filelist.blk", server, loc["here"])):
+            timelocal = int(open("files/filelist.blk.old", "r").readline()) 
+            timeext = int(open("files/filelist.blk", "r").readline())
             if timelocal < timeext:
-                os.replace("files/filelist.blk.new", "files/filelist.blk")
+                os.remove("files/filelist.blk.old")
                 print("Successfully updated file list")
             else:
-                os.remove("files/filelist.blk.new")
+                os.replace("files/filelist.blk.old", "files/filelist.blk")
                 print("The file list is up to date")
      #  if the file is ok
             return
     print("Error downloading file list")
 
-
+"""
+TO-DO:
+    check time
+"""
+    
 def get_block_list(filelist, file):
     for server in loc["servers"]:
-        sync.copy(f"{file.filename}", server, loc["here"])
-
+        if sync.copy(f"{file.filename}.blk", server, loc["here"]):
+            pass
 
 def update():
     files = get_file_list()
@@ -223,19 +227,18 @@ def merge(filename, filepath, partsize=block_size):
         fileobj.close()
         
 
+"""
+def get_file_list():
+    dir = './files'
+    myfile = open('./files/filelist.blk','w')
+    list = os.listdir(dir)
+    for line in list:
+        filepath = os.path.join(dir,line)
+        myfile.write(''+line +'\n')
+    myfile.close()
 
-def get_block_list(file):
-    n = 0
-    while True:
-        blockname = file + "_{}".format(n)
-        if not os.path.exists(blockname):
-            break
-        else:
-            self.append(blockname)
-            n = n + 1
-        
 
-    def block_list_addr(filename):
+def block_list_addr(filename):
     #get the block list addr of given file 
     filelist=open('./filelist','r')
     i=0;
@@ -271,4 +274,4 @@ def block_list_map(file):
         blockmap.append([int(x) for x in line.split(' ')])#assume that block list addr is a number
     bl.close()
     return blockmap
-
+"""
