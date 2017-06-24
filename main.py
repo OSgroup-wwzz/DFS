@@ -9,12 +9,12 @@ put all things together
 """
 
 if __name__ == '__main__':
-    init()
+    setting.init()
     filelist = open(f"files/filelist.blk", "w")
-    files = gen_file_list()
+    files = handler.gen_file_list()
     for file in files:
         filelist.write(f"{file.filename}"+"\n")
-        gen_block_list(file)
+        handler.gen_block_list(file)
     
     event_handler1 = MyFileMonitor()
     observer = Observer()
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     try:
         while True:
             time.sleep(60)
-            update()
+            handler.update()
     except KeyboardInterrupt:
         observer.stop()
     observer.join()
