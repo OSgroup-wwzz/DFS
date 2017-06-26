@@ -11,7 +11,7 @@ import time
 
 
 loc = json.load(open("config/loc.json", "r"))
-block_size = 8192
+block_size = 8388608
 copy_count = 1
 
 class File:
@@ -197,11 +197,11 @@ def split(filepath,partsize=block_size):
             read_content=stream.read(read_size)
             
             read_once_length=len(read_content)
-            if(read_once_length>0):
+            if(read_once_length > 0):
                 part_stream.write(read_content)
             else:
                 break
-            read_part_total+=read_once_length
+            read_part_total += read_once_length
         part_stream.close()
         if(read_once_length==0):
             break
